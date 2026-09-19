@@ -142,13 +142,15 @@ function renderBlock(title,html,extra){
   $('#lo',gate).addEventListener('click',function(){ TED.auth.signOut(); });
 }
 
-function isPortalAdmin(uid){
-  return TED.fs.collection('users').doc(uid).get().then(function(s){ return !!(s.exists && s.data().role==='admin'); }).catch(function(){ return false; });
+/* Administrador = quem passa na regra tedAdmin() do Firestore (dono definido nas regras ou papel "admin" em tedUsuarios).
+   A leitura de tedAdmin/probe só é permitida a administradores; não precisa existir o documento. */
+function probeAdmin(){
+  return TED.fs.collection('tedAdmin').doc('probe').get().then(function(){ return true; }).catch(function(){ return false; });
 }
 
 function afterLogin(user){
   TED.user=user; var mail=(user.email||'').toLowerCase();
-  isPortalAdmin(user.uid).then(function(admin){
+  probeAdmin().then(function(admin){
     if(!admin && !user.emailVerified){
       renderBlock('Confirme seu e-mail','<p class="sub">Enviamos um link de confirmação para <b>'+esc(mail)+'</b>. Depois de clicar no link, volte aqui e toque em “Já confirmei”.</p>',
         '<button class="btn" id="ok">Já confirmei</button><button class="btn ghost" id="rs">Reenviar e-mail</button>');

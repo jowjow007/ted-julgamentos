@@ -3,21 +3,34 @@
 "use strict"; var T=window.TED, esc=T.esc, icon=T.icon;
 
 var RULES=[
-"    // ===== TED — Tribunal de Ética e Disciplina (ted/) =====",
+"rules_version = '2';",
+"service cloud.firestore {",
+"  match /databases/{database}/documents {",
+"",
+"    // >>> TROQUE pelo e-mail do DONO do sistema (o mesmo que você usará para entrar), em minúsculas <<<",
+"    function isOwner() {",
+"      return request.auth != null",
+"        && request.auth.token.email_verified == true",
+"        && request.auth.token.email.lower() == 'troque-por-seu-email@exemplo.com';",
+"    }",
 "    function tedListed() {",
 "      return exists(/databases/$(database)/documents/tedUsuarios/$(request.auth.token.email.lower()));",
 "    }",
 "    function tedOk() {",
-"      return isSignedIn() && (isAdmin() ||",
+"      return request.auth != null && (isOwner() ||",
 "        (request.auth.token.email_verified == true && tedListed()));",
 "    }",
 "    function tedAdmin() {",
-"      return isSignedIn() && (isAdmin() ||",
+"      return request.auth != null && (isOwner() ||",
 "        (request.auth.token.email_verified == true && tedListed() &&",
 "         get(/databases/$(database)/documents/tedUsuarios/$(request.auth.token.email.lower())).data.papel == 'admin'));",
 "    }",
+"",
+"    // usado pelo app para saber se quem entrou é administrador",
+"    match /tedAdmin/{id} { allow read: if tedAdmin(); }",
+"",
 "    match /tedUsuarios/{email} {",
-"      allow read: if tedOk() || (isSignedIn() && request.auth.token.email.lower() == email);",
+"      allow read: if tedOk() || (request.auth != null && request.auth.token.email.lower() == email);",
 "      allow write: if tedAdmin();",
 "    }",
 "    match /tedProcessos/{id} { allow read: if tedOk(); allow write: if tedAdmin(); }",
@@ -25,7 +38,9 @@ var RULES=[
 "    match /tedVotos/{id}     { allow read: if tedOk(); allow write: if tedAdmin(); }",
 "    match /tedNotas/{uid}/itens/{id} {",
 "      allow read, write: if tedOk() && request.auth.uid == uid;",
-"    }"
+"    }",
+"  }",
+"}"
 ].join('\n');
 T.TED_RULES=RULES;
 
@@ -37,7 +52,7 @@ function usersPanel(host){
   function list(){
     T.fs.collection('tedUsuarios').get().then(function(qs){
       var rows=[]; qs.forEach(function(d){ rows.push(Object.assign({_id:d.id},d.data())); });
-      T.$('#u-list',host).innerHTML=rows.length? '<table class="users"><tr><th>E-mail</th><th>Nome</th><th>Papel</th><th></th></tr>'+rows.map(function(r){ return '<tr><td>'+esc(r._id)+'</td><td>'+esc(r.nome||'')+'</td><td><span class="chip '+(r.papel==='admin'?'info':'')+'">'+esc(r.papel==='admin'?'administrador':'leitor')+'</span></td><td><button class="btn ghost sm" data-rm="'+esc(r._id)+'">Remover</button></td></tr>'; }).join('')+'</table>' : '<p class="hint">Ninguém liberado ainda (quem já é administrador na base de usuários do Firebase — a mesma do Portal — entra sempre).</p>';
+      T.$('#u-list',host).innerHTML=rows.length? '<table class="users"><tr><th>E-mail</th><th>Nome</th><th>Papel</th><th></th></tr>'+rows.map(function(r){ return '<tr><td>'+esc(r._id)+'</td><td>'+esc(r.nome||'')+'</td><td><span class="chip '+(r.papel==='admin'?'info':'')+'">'+esc(r.papel==='admin'?'administrador':'leitor')+'</span></td><td><button class="btn ghost sm" data-rm="'+esc(r._id)+'">Remover</button></td></tr>'; }).join('')+'</table>' : '<p class="hint">Ninguém liberado ainda (o dono definido nas regras entra sempre).</p>';
       T.$$('[data-rm]',host).forEach(function(b){ b.addEventListener('click',function(){ if(confirm('Remover o acesso de '+b.getAttribute('data-rm')+'?')) T.fs.collection('tedUsuarios').doc(b.getAttribute('data-rm')).delete().then(list); }); });
     }).catch(function(e){ T.$('#u-list',host).innerHTML='<div class="callout bad">Sem permissão para listar (as regras do TED foram publicadas?). '+esc(e.code||e.message)+'</div>'; });
   }
@@ -76,7 +91,7 @@ function importPanel(host){
 }
 
 function rulesPanel(host){
-  host.innerHTML='<div class="panel"><h3>Publicar as regras do banco (uma vez)</h3><p class="hint">Sem isto o Firestore recusa a leitura. No Firebase Console → Firestore → <b>Regras</b>, cole o bloco abaixo <b>dentro</b> de <span class="kbd">match /databases/{database}/documents { … }</span>, logo abaixo das funções <span class="kbd">isSignedIn()</span> e <span class="kbd">isAdmin()</span> que já existem, e clique em <b>Publicar</b>.</p><pre class="code" id="rl"></pre><button class="btn ghost sm" id="rc" style="margin-top:10px">Copiar regras</button>'+
+  host.innerHTML='<div class="panel"><h3>Publicar as regras do banco (uma vez)</h3><p class="hint">Sem isto o Firestore recusa a leitura. No Firebase Console do projeto do TED → Firestore → <b>Regras</b>, apague o que estiver lá, cole o texto abaixo, troque <span class="kbd">troque-por-seu-email@exemplo.com</span> pelo seu e-mail (em minúsculas) e clique em <b>Publicar</b>.</p><pre class="code" id="rl"></pre><button class="btn ghost sm" id="rc" style="margin-top:10px">Copiar regras</button>'+
    '<div class="callout warn" style="margin-top:14px"><b>Confidencialidade:</b> o repositório deste sistema no GitHub é público. Por isso o código não contém nenhum dado de processo — só a legislação (pública). Os processos, análises e votos ficam no Firestore, atrás de login, e só são lidos por e-mails liberados e confirmados.</div></div>';
   T.$('#rl',host).textContent=RULES;
   T.$('#rc',host).addEventListener('click',function(){ var ta=document.createElement('textarea'); ta.value=RULES; document.body.appendChild(ta); ta.select(); try{ document.execCommand('copy'); T.toast('Regras copiadas.'); }catch(e){} ta.remove(); });
