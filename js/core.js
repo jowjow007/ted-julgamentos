@@ -150,7 +150,8 @@ function probeAdmin(){
 
 function afterLogin(user){
   TED.user=user; var mail=(user.email||'').toLowerCase();
-  probeAdmin().then(function(admin){
+  /* renova o token: sem isso, logo após confirmar o e-mail a sessão ainda carrega email_verified=false e as regras negam */
+  user.getIdToken(true).catch(function(){}).then(probeAdmin).then(function(admin){
     if(!admin && !user.emailVerified){
       renderBlock('Confirme seu e-mail','<p class="sub">Enviamos um link de confirmação para <b>'+esc(mail)+'</b>. Depois de clicar no link, volte aqui e toque em “Já confirmei”.</p>',
         '<button class="btn" id="ok">Já confirmei</button><button class="btn ghost" id="rs">Reenviar e-mail</button>');
