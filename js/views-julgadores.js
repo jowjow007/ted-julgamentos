@@ -88,6 +88,35 @@ function lookupPrec(ref){
   var s=(window.TED_LEGIS||[]).filter(function(d){ return d.id==='sumulas'; })[0]; if(s){ var it=s.itens.filter(function(x){ return ref.indexOf(x.r)>-1 || x.r.indexOf(ref)>-1; })[0]; if(it) return { titulo:it.r+' — '+(it.n||''), texto:it.t, fonte:'CFOAB' }; }
   return null;
 }
+/* ---- seções ricas (padrão "Marcos Vieira") no painel de análise ---- */
+function mdx(s){ return esc(s==null?'':s).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>'); }
+function ulx(a){ return '<ul>'+(a||[]).map(function(x){ return '<li>'+mdx(x)+'</li>'; }).join('')+'</ul>'; }
+function kvx(rows){ return '<div style="display:grid;gap:8px">'+rows.map(function(r){ return '<div style="border-left:3px solid var(--line,#ddd);padding:2px 0 2px 10px"><b>'+mdx(r[0])+'</b><div style="color:var(--muted)">'+mdx(r[1])+'</div></div>'; }).join('')+'</div>'; }
+function richDrawerBefore(p){
+  var d=p.detalhe; if(!d) return ''; var h='';
+  if((d.sintese||[]).length) h+='<div class="sec"><h4>'+icon('spark')+' Síntese dos fatos (leitura integral)</h4>'+d.sintese.map(function(x){ return '<p style="margin:0 0 8px">'+mdx(x)+'</p>'; }).join('')+'</div>';
+  if((d.instrucao||[]).length) h+='<div class="sec"><h4>Instrução e prova — o que cada fonte mostra</h4>'+kvx(d.instrucao.map(function(r){ return [r.fonte,r.mostra]; }))+'</div>';
+  if((d.teseRep||[]).length) h+='<div class="sec"><h4>Teses da representação</h4>'+kvx(d.teseRep.map(function(r){ return [r.peca,r.teses]; }))+'</div>';
+  if((d.teseDef||[]).length) h+='<div class="sec"><h4>Defesa do representado</h4>'+kvx(d.teseDef.map(function(r){ return [r.peca,r.teses]; }))+'</div>';
+  if((d.parecerPontos||[]).length||(d.parecerCritica||[]).length){
+    h+='<div class="sec"><h4>Parecer preliminar — leitura crítica</h4>'+((d.parecerPontos||[]).length?'<p style="margin:0 0 4px"><b>O que diz o parecer</b></p>'+ulx(d.parecerPontos):'')+
+      ((d.parecerCritica||[]).length?'<p style="margin:10px 0 4px"><b>Leitura crítica (não acatar por default)</b></p>'+ulx(d.parecerCritica.map(function(c){ return '**'+c.t+'.** '+c.txt; })):'')+
+      ((d.parecerAcertos||[]).length?'<p style="margin:10px 0 4px"><b>Onde o parecer acerta</b></p>'+ulx(d.parecerAcertos):'')+'</div>';
+  }
+  if((d.tesesAv||[]).length) h+='<div class="sec"><h4>Teses em confronto e sua força</h4>'+d.tesesAv.map(function(t){ return '<div style="margin:0 0 10px"><b>'+mdx(t.t)+'</b>'+(t.f?' <span class="chip info">'+esc(t.f)+'</span>':'')+(t.base?'<div><i>Base:</i> '+mdx(t.base)+'</div>':'')+(t.prova?'<div><i>Prova:</i> '+mdx(t.prova)+'</div>':'')+(t.cuidado?'<div style="color:var(--bad-ink,#a3162d)"><i>Cuidado:</i> '+mdx(t.cuidado)+'</div>':'')+'</div>'; }).join('')+'</div>';
+  if(d.firmeza&&((d.firmeza.firme||[]).length||(d.firmeza.cuidar||[]).length)) h+='<div class="sec"><h4>Onde ser mais firme — e onde cuidar</h4>'+((d.firmeza.firme||[]).length?'<p style="margin:0 0 4px"><b>Firmeza</b></p>'+ulx(d.firmeza.firme):'')+((d.firmeza.cuidar||[]).length?'<p style="margin:10px 0 4px"><b>Cuidado</b></p>'+ulx(d.firmeza.cuidar):'')+'</div>';
+  if((d.vulnerab||[]).length) h+='<div class="sec"><h4>Vulnerabilidades — conferir antes da sessão</h4>'+ulx(d.vulnerab)+'</div>';
+  return h;
+}
+function richDrawerAfter(p){
+  var d=p.detalhe; if(!d) return ''; var h='';
+  if((d.pedidos||[]).length) h+='<div class="sec"><h4>Encaminhamentos possíveis (em cascata)</h4><ol style="margin:0;padding-left:18px">'+d.pedidos.map(function(x){ return '<li>'+mdx(x)+'</li>'; }).join('')+'</ol></div>';
+  if((d.juntar||[]).length) h+='<div class="sec"><h4>Documentos e diligências a conferir</h4>'+ulx(d.juntar)+'</div>';
+  if((d.normas||[]).length) h+='<div class="sec"><h4>Normas em jogo</h4>'+kvx(d.normas.map(function(r){ return [r.n,r.txt]; }))+'</div>';
+  if((d.roteiro||[]).length) h+='<div class="sec"><h4>Roteiro de voto / sustentação</h4><ol style="margin:0;padding-left:18px">'+d.roteiro.map(function(x){ return '<li>'+mdx(x)+'</li>'; }).join('')+'</ol></div>';
+  if((d.notas||[]).length) h+='<div class="sec"><h4>Notas de leitura e pontos a conferir nos originais</h4>'+ulx(d.notas)+'</div>';
+  return h;
+}
 function openAnalise(p,rel){
   var v=ver(p), h=rel?rel.h:262, pa=p.analise||{}, nota=T.state.notas[p._id||p.id]||{};
   var html='<div class="dhead" style="--dh1:hsl('+h+' 78% 44%);--dh2:hsl('+(h+40)+' 80% 56%)"><div><small>'+esc(rel?rel.tr+' '+rel.nome+' · relator':'Processo')+'</small><h3>P.D. '+esc(p.pd||p.id)+'</h3></div><div style="display:flex;gap:8px"><button class="btn sm" style="background:rgba(255,255,255,.22);box-shadow:none" data-act2="pap">'+icon('file')+' Papeleta</button><button class="x" data-close aria-label="Fechar">'+icon('x')+'</button></div></div><div class="dbody">';
@@ -101,11 +130,13 @@ function openAnalise(p,rel){
     html+='<div class="sec"><h4>'+icon('scale')+' Roteiro de análise</h4><div class="checkgrid">'+
       chk(pa.prescricao,'Prescrição')+chk(pa.intercorrente,'Intercorrente')+chk(pa.citacao,'Notificação/citação')+chk(pa.defesa,'Defesa e instrução')+chk(pa.parecer,'Parecer preliminar')+chk(pa.razoes,'Razões finais')+'</div>'+
       (p.calc?'<div style="margin-top:12px"><button class="btn teal sm" data-act2="calc">'+icon('calc')+' Abrir esta contagem na calculadora</button></div>':'')+'</div>';
-    if((p.teses||[]).length) html+='<div class="sec"><h4>Teses apuradas</h4><ul>'+p.teses.map(function(t){ return '<li><b>'+esc(t.parte||'')+':</b> '+esc(t.tese)+'<br><span style="color:var(--muted)">'+esc(t.analise||'')+'</span>'+(t.resultado?' <span class="chip '+(/acolh|proced/i.test(t.resultado)&&!/improc|não/i.test(t.resultado)?'ok':'')+'">'+esc(t.resultado)+'</span>':'')+'</li>'; }).join('')+'</ul></div>';
+    html+=richDrawerBefore(p);
+    if((p.teses||[]).length && !(p.detalhe&&(p.detalhe.tesesAv||[]).length)) html+='<div class="sec"><h4>Teses apuradas</h4><ul>'+p.teses.map(function(t){ return '<li><b>'+esc(t.parte||'')+':</b> '+esc(t.tese)+'<br><span style="color:var(--muted)">'+esc(t.analise||'')+'</span>'+(t.resultado?' <span class="chip '+(/acolh|proced/i.test(t.resultado)&&!/improc|não/i.test(t.resultado)?'ok':'')+'">'+esc(t.resultado)+'</span>':'')+'</li>'; }).join('')+'</ul></div>';
     if((p.artigos||[]).length) html+='<div class="sec"><h4>Enquadramento</h4><p style="margin:0 0 8px">'+p.artigos.map(function(a){ return '<span class="art">'+esc(a)+'</span>'; }).join('')+'</p>'+(p.enquadramento?'<p style="margin:0;color:var(--muted)">'+esc(p.enquadramento)+'</p>':'')+'</div>';
     if((p.cronologia||[]).length) html+='<div class="sec"><h4>'+icon('cal')+' Cronologia</h4><div class="tl">'+p.cronologia.map(function(c){ return '<div class="ev'+(c.marco?' mark':'')+'"><b>'+esc(T.isoToBR(c.data))+'</b>'+esc(c.evento)+(c.fls?' <span style="color:var(--faint)">(fls. '+esc(c.fls)+')</span>':'')+'</div>'; }).join('')+'</div></div>';
     if((p.documentos||[]).length) html+='<div class="sec"><h4>Documentos e provas examinados</h4><ul>'+p.documentos.map(function(d){ return '<li>'+esc(d)+'</li>'; }).join('')+'</ul></div>';
     if((p.precedentes||[]).length) html+='<div class="sec"><h4>Ementário e súmulas do CFOAB</h4><p style="margin:0 0 8px;color:var(--muted);font-size:13px">Clique para ler o texto.</p>'+p.precedentes.map(function(r,i){ return '<button class="chip info" style="border:0;cursor:pointer;margin:0 6px 6px 0" data-prec="'+i+'">'+esc(r)+'</button>'; }).join('')+'<div id="precbox"></div></div>';
+    html+=richDrawerAfter(p);
     (p.alertas||[]).forEach(function(a){ html+='<div class="callout '+(/^✓/.test(a)?'ok':'warn')+'">'+esc(a)+'</div>'; });
   }
   html+='<div class="sec"><h4>'+icon('brain')+' Minhas anotações e voto</h4><label class="field"><span>Meu voto como vogal</span><select class="select input" id="nv"><option value="">— ainda não decidi —</option><option value="acompanha">Acompanho o relator</option><option value="diverge">Divirjo</option><option value="vista">Peço vista</option></select></label>'+
