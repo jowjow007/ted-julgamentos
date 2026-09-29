@@ -36,29 +36,29 @@ function icon(n,cls){ return '<svg class="i '+(cls||'')+'" viewBox="0 0 24 24" a
 /* Marca OAB/MG — TED em vetor: fundo transparente e cores que acompanham o tema. */
 var LOGO_STARS=[[58,116,4],[86,138,3.4],[44,150,2.8],[104,152,4.2],[72,170,3],[128,134,3],[146,158,3.4],[100,120,2.6],[118,176,2.8],[62,96,3.2],[158,140,2.6],[34,130,2.4],[140,186,2.6],[176,154,2.4]];
 function logo(variant,cls){
-  var full=variant==='full';
+  var stack=variant!=='mark';
   var stars=LOGO_STARS.map(function(s){ return '<use href="#tgStar" transform="translate('+s[0]+','+s[1]+') scale('+s[2]+')"/>'; }).join('');
-  return '<svg class="'+(cls||'')+'" viewBox="'+(full?'0 0 1105 262':'0 0 520 262')+'" role="img" aria-label="OAB Minas Gerais — Tribunal de Ética e Disciplina">'+
+  return '<svg class="'+(cls||'')+'" viewBox="'+(stack?'0 0 520 412':'0 0 520 262')+'" role="img" aria-label="OAB Minas Gerais — Tribunal de Ética e Disciplina">'+
     '<defs>'+
       '<radialGradient id="tgG" cx="33%" cy="26%" r="84%"><stop offset="0" stop-color="#6cbcec"/><stop offset="40%" stop-color="#2069b0"/><stop offset="100%" stop-color="#051f42"/></radialGradient>'+
       '<linearGradient id="tgRim" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".6"/><stop offset="1" stop-color="#fff" stop-opacity=".04"/></linearGradient>'+
       '<linearGradient id="tgRa" x1="0" y1="0" x2=".8" y2="1"><stop offset="0" stop-color="#d8392a"/><stop offset="100%" stop-color="#7d120f"/></linearGradient>'+
       '<linearGradient id="tgRb" x1="0" y1="0" x2=".7" y2="1"><stop offset="0" stop-color="#f05a43"/><stop offset="55%" stop-color="#c32a1e"/><stop offset="100%" stop-color="#8d1512"/></linearGradient>'+
-      '<linearGradient id="tgDiv" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="currentColor" stop-opacity="0"/><stop offset="50%" stop-color="currentColor" stop-opacity=".55"/><stop offset="1" stop-color="currentColor" stop-opacity="0"/></linearGradient>'+
+      '<linearGradient id="tgDiv" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#8f96b4" stop-opacity="0"/><stop offset="50%" stop-color="#8f96b4" stop-opacity=".9"/><stop offset="1" stop-color="#8f96b4" stop-opacity="0"/></linearGradient>'+
       '<path id="tgStar" d="M0,-1L.225,-.309L.951,-.309L.363,.118L.588,.809L0,.382L-.588,.809L-.363,.118L-.951,-.309L-.225,-.309Z"/>'+
       '<path id="tgArc" d="M40.5,143A78,78 0 1 1 175.5,143"/>'+
     '</defs>'+
     '<circle cx="108" cy="104" r="96" fill="url(#tgG)"/>'+
     '<ellipse cx="74" cy="58" rx="48" ry="30" fill="#fff" opacity=".14" transform="rotate(-28 74 58)"/>'+
     '<g fill="#fff" opacity=".95">'+stars+'</g>'+
-    (full?'<text font-size="12.6" letter-spacing="1.1" fill="#fff" opacity=".9"><textPath href="#tgArc" startOffset="50%" text-anchor="middle">ORDEM DOS ADVOGADOS DO BRASIL</textPath></text>':'')+
+    (stack?'<text font-size="12.6" letter-spacing="1.1" fill="#fff" opacity=".9"><textPath href="#tgArc" startOffset="50%" text-anchor="middle">ORDEM DOS ADVOGADOS DO BRASIL</textPath></text>':'')+
     '<circle cx="108" cy="104" r="96" fill="none" stroke="url(#tgRim)" stroke-width="2.2"/>'+
     '<path d="M256,4L346,202L166,202Z" fill="url(#tgRa)"/>'+
     '<path d="M356,4L414,4C474,4 500,26 500,58C500,82 484,98 458,104C488,110 508,130 508,158C508,188 480,202 416,202L356,202Z" fill="url(#tgRb)"/>'+
-    '<text class="tg-mg" x="88" y="246" font-size="46" font-weight="700" textLength="420" lengthAdjust="spacingAndGlyphs">MINAS GERAIS</text>'+
-    (full?'<line class="tg-div" x1="556" y1="22" x2="556" y2="238" stroke="url(#tgDiv)" stroke-width="2.5"/>'+
-      '<text class="tg-tt" x="598" y="106" font-size="64">Tribunal de</text>'+
-      '<text class="tg-tt" x="598" y="192" font-size="64">Ética e Disciplina</text>':'')+
+    '<text class="tg-mg" x="260" y="246" font-size="46" font-weight="700" textLength="420" lengthAdjust="spacingAndGlyphs" text-anchor="middle">MINAS GERAIS</text>'+
+    (stack?'<line class="tg-div" x1="118" y1="292" x2="402" y2="292" stroke="url(#tgDiv)" stroke-width="4"/>'+
+      '<text class="tg-tt" x="260" y="346" font-size="48" text-anchor="middle">Tribunal de</text>'+
+      '<text class="tg-tt" x="260" y="398" font-size="48" text-anchor="middle">Ética e Disciplina</text>':'')+
   '</svg>';
 }
 function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
@@ -132,7 +132,7 @@ function renderGate(mode,msg,kind){
   var t = mode==='criar'?'Criar meu acesso':mode==='reset'?'Redefinir senha':'Entrar';
   gate.classList.remove('hidden'); app.classList.add('hidden');
   gate.innerHTML =
-   '<div class="login">'+logo('full','login-logo')+'<h1 class="sr-only">Tribunal de Ética e Disciplina</h1>'+
+   '<div class="login">'+logo('stack','login-logo')+'<h1 class="sr-only">Tribunal de Ética e Disciplina</h1>'+
    '<p class="sub">Painel de julgamentos — acesso restrito aos membros liberados.</p>'+
    '<form id="lg" autocomplete="on">'+
     '<label class="field"><span>E-mail</span><input class="input" type="email" id="lg-mail" required autocomplete="username" placeholder="voce@exemplo.com.br"></label>'+
@@ -167,7 +167,7 @@ function traduzErro(e){
 }
 function renderBlock(title,html,extra){
   gate.classList.remove('hidden'); app.classList.add('hidden');
-  gate.innerHTML='<div class="login">'+logo('full','login-logo')+'<h1>'+esc(title)+'</h1>'+html+'<div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap">'+(extra||'')+'<button class="btn ghost" id="lo">Sair</button></div></div>';
+  gate.innerHTML='<div class="login">'+logo('stack','login-logo')+'<h1>'+esc(title)+'</h1>'+html+'<div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap">'+(extra||'')+'<button class="btn ghost" id="lo">Sair</button></div></div>';
   $('#lo',gate).addEventListener('click',function(){ TED.auth.signOut(); });
 }
 
@@ -279,7 +279,7 @@ TED.saveNota=function(id,patch){
 
 /* ---------- boot ---------- */
 function boot(){
-  if(!fbReady()){ gate.innerHTML='<div class="login">'+logo('full','login-logo')+'<h1>Configuração pendente</h1><p class="sub">O arquivo firebase-config.js não foi preenchido.</p></div>'; return; }
+  if(!fbReady()){ gate.innerHTML='<div class="login">'+logo('stack','login-logo')+'<h1>Configuração pendente</h1><p class="sub">O arquivo firebase-config.js não foi preenchido.</p></div>'; return; }
   firebase.initializeApp(firebaseConfig);
   TED.auth=firebase.auth(); TED.fs=firebase.firestore(); TED.db=TED.fs;
   TED.auth.onAuthStateChanged(function(u){ if(u) afterLogin(u); else { TED.user=null; window.removeEventListener('hashchange',route); renderGate('entrar'); } });
