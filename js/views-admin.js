@@ -39,6 +39,7 @@ var RULES=[
 "    match /tedNotas/{uid}/itens/{id} {",
 "      allow read, write: if tedOk() && request.auth.uid == uid;",
 "    }",
+"    match /tedRelatoria/{id} { allow read: if tedOk(); allow write: if tedAdmin(); }",
 "  }",
 "}"
 ].join('\n');
@@ -72,19 +73,19 @@ function importPanel(host){
   var data=null, log=T.$('#i-log',host), bar=T.$('#i-bar',host);
   T.$('#i-file',host).addEventListener('change',function(e){
     var f=e.target.files[0]; if(!f) return; var r=new FileReader();
-    r.onload=function(){ try{ data=JSON.parse(r.result); log.innerHTML='Arquivo lido: <b>'+(data.processos||[]).length+'</b> processos, <b>'+(data.meus||[]).length+'</b> meus processos, <b>'+(data.votos||[]).length+'</b> votos/acórdãos.'; T.$('#i-go',host).disabled=false; }catch(err){ log.innerHTML='<span style="color:var(--bad-ink)">JSON inválido: '+esc(err.message)+'</span>'; } };
+    r.onload=function(){ try{ data=JSON.parse(r.result); log.innerHTML='Arquivo lido: <b>'+(data.processos||[]).length+'</b> processos, <b>'+(data.meus||[]).length+'</b> meus, <b>'+(data.votos||[]).length+'</b> votos, <b>'+(data.relatorias||[]).length+'</b> relatorias.'; T.$('#i-go',host).disabled=false; }catch(err){ log.innerHTML='<span style="color:var(--bad-ink)">JSON inválido: '+esc(err.message)+'</span>'; } };
     r.readAsText(f,'utf-8');
   });
   function chunks(a,n){ var o=[]; for(var i=0;i<a.length;i+=n) o.push(a.slice(i,i+n)); return o; }
   T.$('#i-go',host).addEventListener('click',function(){
     if(!data) return; var btn=this; btn.disabled=true;
-    var jobs=[['tedProcessos',data.processos||[],200],['tedMeus',data.meus||[],200],['tedVotos',data.votos||[],40]];
+    var jobs=[['tedProcessos',data.processos||[],200],['tedMeus',data.meus||[],200],['tedVotos',data.votos||[],40],['tedRelatoria',data.relatorias||[],40]];
     var total=jobs.reduce(function(s,j){ return s+j[1].length; },0), done=0, clean=T.$('#i-clean',host).checked;
     function step(){ bar.style.width=Math.round(done/Math.max(1,total)*100)+'%'; }
     function delAll(name){ return T.fs.collection(name).get().then(function(qs){ var ds=[]; qs.forEach(function(d){ ds.push(d.ref); }); return chunks(ds,300).reduce(function(p,ch){ return p.then(function(){ var b=T.fs.batch(); ch.forEach(function(r){ b.delete(r); }); return b.commit(); }); },Promise.resolve()); }); }
     var p=Promise.resolve();
     if(clean) jobs.forEach(function(j){ p=p.then(function(){ log.textContent='Limpando '+j[0]+'…'; return delAll(j[0]); }); });
-    jobs.forEach(function(j){ chunks(j[1],j[2]).forEach(function(ch){ p=p.then(function(){ log.textContent='Gravando '+j[0]+'… ('+done+'/'+total+')'; var b=T.fs.batch(); ch.forEach(function(x){ var id=String(x.id||x.pd).replace(/[\/\s]+/g,'-'); b.set(T.fs.collection(j[0]).doc(id),x); }); return b.commit().then(function(){ done+=ch.length; step(); }); }); }); });
+    jobs.forEach(function(j){ chunks(j[1],j[2]).forEach(function(ch){ p=p.then(function(){ log.textContent='Gravando '+j[0]+'… ('+done+'/'+total+')'; var b=T.fs.batch(); ch.forEach(function(x){ var id=String(x.id||x.pd).replace(/[\/\s]+/g,'-'); if(j[0]==='tedMeus') b.set(T.fs.collection(j[0]).doc(id),x,{merge:true}); else b.set(T.fs.collection(j[0]).doc(id),x); }); return b.commit().then(function(){ done+=ch.length; step(); }); }); }); });
     p.then(function(){ log.innerHTML='<div class="msg ok">Importação concluída: '+total+' documentos.</div>'; bar.style.width='100%'; T.state.votos=null; return T.reload(); })
      .catch(function(e){ log.innerHTML='<div class="msg err">Falhou: '+esc(e.code||e.message)+' — confira se as regras do TED foram publicadas.</div>'; btn.disabled=false; });
   });

@@ -35,13 +35,19 @@ function card(p,i,rel){
   }
   var meta=pend&&p.arquivo? '<div class="row"><i>Arquivo</i><div style="font-size:12.5px;color:var(--muted)">'+esc(p.arquivo)+(p.tamanhoMB?' · '+esc(p.tamanhoMB)+' MB':'')+(p.atualizadoDrive?' · atualizado em '+esc(T.isoToBR(p.atualizadoDrive)):'')+'</div></div>' : '';
   var chip=pend?'<span class="chip">pendente</span>':(p.status==='parcial'?'<span class="chip warn">análise parcial</span>':'<span class="chip '+v.chip+'">'+esc(v.rot)+'</span>');
+  var relChip='';
+  if(p.editavel){
+    var relRec=T.state&&T.state.relatoria?T.state.relatoria[p._id||p.id]:null;
+    var rl=relRec?(function(){var vfs=(relRec.votoFinal||{}).status,ds=(relRec.deliberacao||{}).status;return vfs==='aprovado'?['Voto aprovado','ok']:vfs==='revisado'?['Voto revisado','info']:vfs==='gerado'?['Voto gerado','info']:ds==='definida'?['Deliberação definida','warn']:['Rascunho',''];}()):['Sem deliberação',''];
+    relChip='<div style="margin-top:4px"><span class="chip rel-chip-mini '+(rl[1]||'')+'">'+esc(rl[0])+'</span></div>';
+  }
   return '<article class="pc '+v.cls+(pend?' pending':'')+'" style="--i:'+i+'"><div class="bar"></div>'+
-    '<div class="hd"><div><div class="num">P.D. '+esc(p.pd||p.id)+'</div><div class="sub">'+esc(p.subsecao||(rel?rel.tr+' '+rel.nome:''))+'</div></div>'+chip+'</div>'+
+    '<div class="hd"><div><div class="num">P.D. '+esc(p.pd||p.id)+'</div><div class="sub">'+esc(p.subsecao||(rel?rel.tr+' '+rel.nome:''))+'</div></div><div style="text-align:right">'+chip+relChip+'</div></div>'+
     '<div class="body">'+partes+infr+arts+meta+'</div>'+verd+
     '<div class="ft"><button class="btn sm" data-act="pap" data-id="'+esc(p._id||p.id)+'">'+icon('file')+' Papeleta</button>'+
     '<button class="btn ghost sm" data-act="ana" data-id="'+esc(p._id||p.id)+'">'+icon('search')+' Análise completa</button>'+
-    (p.driveId?'<a class="btn ghost sm" target="_blank" rel="noopener" href="'+driveUrl(p.driveId,p.driveTipo!=='pasta')+'">'+icon('ext')+' Autos no Drive</a>':'')+
-    (p.editavel?'<button class="btn ghost sm" data-act="edt" data-id="'+esc(p._id||p.id)+'">Editar</button>':'')+'</div></article>';
+    (p.driveLink||p.driveId?'<a class="btn ghost sm" target="_blank" rel="noopener" href="'+(p.driveLink||driveUrl(p.driveId,p.driveTipo!=='pasta'))+'">'+icon('ext')+' Autos no Drive</a>':'')+
+    (p.editavel?'<button class="btn ghost sm" data-act="edt" data-id="'+esc(p._id||p.id)+'">Editar</button>':'')+(p.editavel?'<button class="btn sm rel-btn-card" data-act="rel" data-id="'+esc(p._id||p.id)+'">'+icon('gavel')+' Deliberar</button>':'')+'</div></article>';
 }
 
 function board(host,list,rel,opts){
@@ -72,6 +78,7 @@ function board(host,list,rel,opts){
     if(act==='pap') T.papeleta.open(p,rel||relById(p.relatorId),{nota:T.state.notas[p._id||p.id]||{}});
     if(act==='ana') openAnalise(p,rel||relById(p.relatorId));
     if(act==='edt'&&opts.onEdit) opts.onEdit(p);
+    if(act==='rel') location.hash='#/relatoria/'+id;
   });
 }
 

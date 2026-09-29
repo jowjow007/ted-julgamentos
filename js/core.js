@@ -90,7 +90,7 @@ var TED = window.TED = {
   icon:icon, esc:esc, $:$, $$:$$, isoToBR:isoToBR, brToISO:brToISO, normTxt:normTxt, hl:hl, hlSmart:hlSmart, snippet:snippet, toast:toast, debounce:debounce,
   openDrawer:openDrawer, openModal:openModal, closeOverlay:closeOverlay,
   user:null, perfil:null, db:null, auth:null,
-  state:{ processos:[], meus:[], notas:{}, votos:null, loaded:false },
+  state:{ processos:[], meus:[], notas:{}, votos:null, relatoria:{}, loaded:false },
   tabs:[], views:{}
 };
 
@@ -103,7 +103,7 @@ function renderGate(mode,msg,kind){
   var t = mode==='criar'?'Criar meu acesso':mode==='reset'?'Redefinir senha':'Entrar';
   gate.classList.remove('hidden'); app.classList.add('hidden');
   gate.innerHTML =
-   '<div class="login"><div class="mark">TED</div><h1>Tribunal de Ética e Disciplina</h1>'+
+   '<div class="login"><img src="logo-ted.jpg" class="login-logo" alt="OAB/MG — Tribunal de Ética e Disciplina"><h1 class="sr-only">Tribunal de Ética e Disciplina</h1>'+
    '<p class="sub">Painel de julgamentos — acesso restrito aos membros liberados.</p>'+
    '<form id="lg" autocomplete="on">'+
     '<label class="field"><span>E-mail</span><input class="input" type="email" id="lg-mail" required autocomplete="username" placeholder="voce@exemplo.com.br"></label>'+
@@ -138,7 +138,7 @@ function traduzErro(e){
 }
 function renderBlock(title,html,extra){
   gate.classList.remove('hidden'); app.classList.add('hidden');
-  gate.innerHTML='<div class="login"><div class="mark">TED</div><h1>'+esc(title)+'</h1>'+html+'<div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap">'+(extra||'')+'<button class="btn ghost" id="lo">Sair</button></div></div>';
+  gate.innerHTML='<div class="login"><img src="logo-ted.jpg" class="login-logo" alt="OAB/MG — Tribunal de Ética e Disciplina"><h1>'+esc(title)+'</h1>'+html+'<div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap">'+(extra||'')+'<button class="btn ghost" id="lo">Sair</button></div></div>';
   $('#lo',gate).addEventListener('click',function(){ TED.auth.signOut(); });
 }
 
@@ -180,7 +180,7 @@ function start(perfil){
   var ini=(TED.user.email||'?').charAt(0).toUpperCase();
   app.innerHTML =
    '<header class="topbar"><div class="topin">'+
-     '<div class="brand"><div class="mark">TED</div><div><b>Julgamentos</b><small>OAB/MG · 1ª Turma Regional</small></div></div>'+
+     '<div class="brand"><img src="logo-ted.jpg" class="topbar-logo" alt="TED"><div><b>Julgamentos</b><small>OAB/MG · 1ª Turma Regional</small></div></div>'+
      '<nav class="nav" id="nav"></nav>'+
      '<div class="who"><button class="iconbtn" id="thm" title="Alternar tema">'+icon('moon')+'</button>'+
        '<div class="avatar">'+esc(ini)+'</div><div class="nm"><b>'+esc(perfil.nome.split('@')[0])+'</b><small>'+(perfil.admin?'administrador':'membro')+'</small></div>'+
@@ -194,7 +194,7 @@ function start(perfil){
 }
 function buildNav(){
   var nav=$('#nav'); nav.innerHTML='';
-  TED.tabs.filter(function(t){ return !t.admin || TED.perfil.admin; }).forEach(function(t){
+  TED.tabs.filter(function(t){ return !t.hidden && (!t.admin || TED.perfil.admin); }).forEach(function(t){
     var b=document.createElement('button'); b.className='navbtn'; b.setAttribute('data-tab',t.id); b.innerHTML=icon(t.icon)+'<span>'+esc(t.label)+'</span>';
     b.addEventListener('click',function(){ location.hash='#/'+t.id; }); nav.appendChild(b);
   });
@@ -226,8 +226,9 @@ function notasRef(){ return TED.fs.collection('tedNotas').doc(TED.user.uid).coll
 function loadData(){
   var S=TED.state;
   viewRoot.innerHTML='<div class="empty"><span class="spin"></span><p>Carregando os autos e análises…</p></div>';
-  return Promise.all([ getAll('tedProcessos').catch(fail('tedProcessos')), getAll('tedMeus').catch(fail('tedMeus')), getAll(notasRef()).catch(fail('tedNotas')) ]).then(function(r){
-    S.processos=r[0]||[]; S.meus=r[1]||[]; S.notas={}; (r[2]||[]).forEach(function(n){ S.notas[n._id]=n; }); S.loaded=true;
+  return Promise.all([ getAll('tedProcessos').catch(fail('tedProcessos')), getAll('tedMeus').catch(fail('tedMeus')), getAll(notasRef()).catch(fail('tedNotas')), getAll('tedRelatoria').catch(fail('tedRelatoria')) ]).then(function(r){
+    S.processos=r[0]||[]; S.meus=r[1]||[]; S.notas={}; (r[2]||[]).forEach(function(n){ S.notas[n._id]=n; });
+    S.relatoria={}; (r[3]||[]).forEach(function(n){ S.relatoria[n._id||n.processoId]=n; }); S.loaded=true;
   });
   function fail(n){ return function(e){ console.warn('Falha ao ler '+n,e); if(e&&/permission/i.test(e.code||e.message||'')) S.permFail=true; return []; }; }
 }
@@ -236,6 +237,12 @@ TED.loadVotos=function(){
   if(TED.state.votos) return Promise.resolve(TED.state.votos);
   return getAll('tedVotos').then(function(a){ TED.state.votos=a; return a; });
 };
+TED.saveRelatoria=function(processId,patch){
+  return TED.fs.collection('tedRelatoria').doc(processId).set(patch,{merge:true}).then(function(){
+    TED.state.relatoria[processId]=Object.assign(TED.state.relatoria[processId]||{},patch);
+    TED.toast('Salvo.');
+  });
+};
 TED.saveNota=function(id,patch){
   patch.atualizadoEm=Date.now(); patch.por=(TED.user.email||'');
   return notasRef().doc(id).set(patch,{merge:true}).then(function(){ TED.state.notas[id]=Object.assign(TED.state.notas[id]||{_id:id},patch); });
@@ -243,7 +250,7 @@ TED.saveNota=function(id,patch){
 
 /* ---------- boot ---------- */
 function boot(){
-  if(!fbReady()){ gate.innerHTML='<div class="login"><div class="mark">TED</div><h1>Configuração pendente</h1><p class="sub">O arquivo firebase-config.js não foi preenchido.</p></div>'; return; }
+  if(!fbReady()){ gate.innerHTML='<div class="login"><img src="logo-ted.jpg" class="login-logo" alt="OAB/MG — Tribunal de Ética e Disciplina"><h1>Configuração pendente</h1><p class="sub">O arquivo firebase-config.js não foi preenchido.</p></div>'; return; }
   firebase.initializeApp(firebaseConfig);
   TED.auth=firebase.auth(); TED.fs=firebase.firestore(); TED.db=TED.fs;
   TED.auth.onAuthStateChanged(function(u){ if(u) afterLogin(u); else { TED.user=null; window.removeEventListener('hashchange',route); renderGate('entrar'); } });
