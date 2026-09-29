@@ -286,8 +286,14 @@ table.users{width:100%;border-collapse:collapse}
 table.users td,table.users th{padding:9px 10px;border-bottom:1px solid var(--line);font-size:13.5px;text-align:left}
 .kbd{font-family:var(--mono);font-size:12px;background:var(--bg2);border:1px solid var(--line2);border-bottom-width:2px;border-radius:6px;padding:1px 6px}
 pre.code{background:#0f1226;color:#d8dcff;border-radius:14px;padding:14px 16px;overflow:auto;font-size:12px;line-height:1.55;font-family:var(--mono);max-height:340px}
-.login-logo{display:block;max-width:280px;width:90%;margin:0 auto 20px;filter:drop-shadow(0 2px 8px rgba(0,0,0,.18))}
-.topbar-logo{height:38px;width:auto;object-fit:contain;display:block}
+.login-logo{display:block;max-width:360px;width:92%;height:auto;margin:0 auto 22px}
+.topbar-logo{height:34px;width:auto;display:block;flex:none}
+.tg-mg,.tg-tt{font-family:'Segoe UI',system-ui,-apple-system,'Helvetica Neue',Arial,sans-serif}
+.tg-mg{fill:var(--ink);letter-spacing:.5px}
+.tg-tt{fill:#2c5f8d;font-weight:400;letter-spacing:.4px}
+.tg-div{color:var(--line2)}
+@media (prefers-color-scheme:dark){ :root:not([data-theme="light"]) .tg-tt{fill:#8cc0ee} }
+:root[data-theme="dark"] .tg-tt{fill:#8cc0ee}
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
 .spin{width:22px;height:22px;border-radius:50%;border:3px solid var(--line2);border-top-color:var(--brand1);animation:sp .8s linear infinite;display:inline-block;vertical-align:middle}
 @keyframes sp{to{transform:rotate(360deg)}}
