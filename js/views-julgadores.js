@@ -169,7 +169,17 @@ function home(root){
    '<div class="tips"><span class="tip">1 · Clique no bloco do relator</span><span class="tip">2 · Veja os blocos dos processos</span><span class="tip">3 · Abra a papeleta ou a análise</span></div></section>'+
    (S.permFail?'<div class="callout bad"><b>Sem permissão de leitura.</b> As regras do Firestore do TED ainda não foram publicadas (ou seu e-mail não está liberado). Veja a aba <b>Acesso</b> (administrador) ou o README-SETUP.md.</div>':'')+
    (!S.processos.length&&!S.permFail?'<div class="callout warn"><b>Nenhum processo carregado ainda.</b> '+(T.perfil.admin?'Vá em <b>Acesso → Importar dados</b> e envie o arquivo <span class="kbd">TED-importacao.json</span>.':'Peça ao administrador para importar os dados.')+'</div>':'')+
-   '<div class="stats stagger">'+[['Processos como vogal',tot.total,'#5b4bff'],['Já analisados',tot.analisado,'#10b8a4'],['Puníveis',tot.punivel,'#f2455c'],['Não puníveis',tot.nao_punivel,'#1fb768'],['Prescritos',tot.prescrito,'#ffae1a'],['Aguardando autos',tot.pendente,'#8b91ad']].map(function(s,i){ return '<div class="stat" style="--c:'+s[2]+';--i:'+i+'"><b>'+s[1]+'</b><span>'+s[0]+'</span></div>'; }).join('')+'</div>'+
+   (function(){ var meus=S.meus||[], cm=counts(meus), geral=tot.total+meus.length, pend=tot.pendente+cm.pendente;
+     return '<div class="stats stagger">'+[
+       ['Total no sistema',geral,'#9a5cff'],
+       ['Processos como vogal',tot.total,'#5b4bff'],
+       ['Como relator',meus.length,'#10b8a4'],
+       ['Já analisados',tot.analisado+cm.analisado,'#1fb768'],
+       ['Puníveis',tot.punivel+cm.punivel,'#f2455c'],
+       ['Não puníveis',tot.nao_punivel+cm.nao_punivel,'#2f8cff'],
+       ['Prescritos',tot.prescrito+cm.prescrito,'#ffae1a'],
+       ['Aguardando autos',pend,'#8b91ad']
+     ].map(function(s,i){ return '<div class="stat" style="--c:'+s[2]+';--i:'+i+'"><b>'+s[1]+'</b><span>'+s[0]+'</span></div>'; }).join('')+'</div>'; })()+
    '<div class="relgrid stagger">'+rels.map(function(r,i){ var l=byRel[r.id]||[], c=counts(l);
      return '<button class="rel" style="--h:'+r.h+';--i:'+i+'" data-rel="'+r.id+'"><div class="big">'+l.length+'</div><div><div class="ini">'+esc(ini(r.nome))+'</div><h3>'+esc(r.tr+' '+r.nome)+'</h3><small>'+(r.oab?esc(r.oab)+' · ':'')+'relator</small></div>'+
        '<div class="pills"><span class="pill">'+c.analisado+' '+(c.analisado===1?'analisado':'analisados')+'</span>'+(c.punivel?'<span class="pill">'+c.punivel+' '+(c.punivel===1?'punível':'puníveis')+'</span>':'')+(c.nao_punivel?'<span class="pill">'+c.nao_punivel+' '+(c.nao_punivel===1?'não punível':'não puníveis')+'</span>':'')+(c.prescrito?'<span class="pill">'+c.prescrito+' '+(c.prescrito===1?'prescrito':'prescritos')+'</span>':'')+(c.pendente?'<span class="pill">'+c.pendente+' '+(c.pendente===1?'pendente':'pendentes')+'</span>':'')+'</div></button>'; }).join('')+'</div>';
