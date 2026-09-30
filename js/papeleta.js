@@ -83,7 +83,7 @@ function stCell(o){ if(!o) return '<td class="s st-na">Não apurado</td>'; retur
 function logoURL(){ try{ return new URL('assets/logo-light.png', location.href).href; }catch(e){ return ''; } }
 
 function veredictoRotulo(p){
-  var m={punivel:'Punível',nao_punivel:'Não punível',prescrito:'Prescrição — extinção da punibilidade',nulo:'Nulidade a reconhecer',tac:'Cabível TAC / suspensão condicional',pendente:'A definir'}; return m[p.veredito]||'A definir';
+  var m={punivel:'Punível',nao_punivel:'Não punível',prescrito:'Prescrição — extinção da punibilidade',nulo:'Nulidade a reconhecer',tac:'Cabível TAC / suspensão condicional',diligencia:'Converter o julgamento em diligência',pendente:'A definir'}; return m[p.veredito]||'A definir';
 }
 
 /* ---- seções ricas (padrão "Marcos Vieira"): só aparecem se o processo tiver p.detalhe ---- */

@@ -19,7 +19,7 @@ function form(p){
    '<label class="field"><span>Subseção de origem</span><input class="input" id="f-sub" value="'+esc(p.subsecao||'')+'"></label>'+
    '<label class="field"><span>Infração (até 4 palavras)</span><input class="input" id="f-inf" value="'+esc(p.infracao||'')+'"></label>'+
    '<label class="field"><span>Artigo(s) — um por linha</span><textarea class="input" id="f-art" style="min-height:64px">'+esc(toLines(p.artigos))+'</textarea></label>'+
-   '<label class="field"><span>Conclusão</span><select class="select input" id="f-ver">'+[['pendente','A definir'],['punivel','Punível'],['nao_punivel','Não punível'],['prescrito','Prescrito'],['nulo','Nulidade'],['tac','TAC']].map(function(o){ return '<option value="'+o[0]+'"'+((p.veredito||'pendente')===o[0]?' selected':'')+'>'+o[1]+'</option>'; }).join('')+'</select></label>'+
+   '<label class="field"><span>Conclusão</span><select class="select input" id="f-ver">'+[['pendente','A definir'],['punivel','Punível'],['nao_punivel','Não punível'],['prescrito','Prescrito'],['nulo','Nulidade'],['tac','TAC'],['diligencia','Converter em diligência']].map(function(o){ return '<option value="'+o[0]+'"'+((p.veredito||'pendente')===o[0]?' selected':'')+'>'+o[1]+'</option>'; }).join('')+'</select></label>'+
    '<label class="field"><span>Sanção proposta</span><input class="input" id="f-san" placeholder="ex.: Censura + multa de 3 anuidades" value="'+esc(p.sancao||'')+'"></label>'+
    '</div><label class="field"><span>Síntese (uma frase)</span><input class="input" id="f-lead" value="'+esc(p.lead||'')+'"></label>'+
    '<label class="field"><span>Pontos do caso — um por linha</span><textarea class="input" id="f-pts">'+esc(toLines(p.pontos))+'</textarea></label>'+

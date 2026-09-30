@@ -9,6 +9,7 @@ var VER={
   prescrito:{cls:'v-prescrito',rot:'Prescrito',ic:'clock',chip:'warn'},
   nulo:{cls:'v-nulo',rot:'Nulidade',ic:'alert',chip:'info'},
   tac:{cls:'v-tac',rot:'TAC',ic:'shield',chip:'info'},
+  diligencia:{cls:'v-diligencia',rot:'Converter em diligência',ic:'search',chip:'warn'},
   pendente:{cls:'v-pendente',rot:'Aguardando leitura dos autos',ic:'clock',chip:''}
 };
 function ver(p){ return VER[p.veredito||'pendente']||VER.pendente; }
@@ -16,7 +17,7 @@ function words4(s){ var w=String(s||'').trim().split(/\s+/); return w.length>4? 
 function driveUrl(id,isFile){ return isFile? 'https://drive.google.com/file/d/'+id+'/view' : 'https://drive.google.com/drive/folders/'+id; }
 function relById(id){ return (window.TED_RELATORES||[]).filter(function(r){ return r.id===id; })[0]; }
 function ini(nome){ var p=String(nome).split(/\s+/).filter(function(x){ return x.length>2; }); return (p[0]||'?').charAt(0)+(p[p.length-1]||'').charAt(0); }
-function counts(list){ var c={total:list.length,punivel:0,nao_punivel:0,prescrito:0,nulo:0,tac:0,pendente:0,analisado:0}; list.forEach(function(p){ var v=p.veredito||'pendente'; c[v]=(c[v]||0)+1; if(p.status!=='pendente') c.analisado++; }); return c; }
+function counts(list){ var c={total:list.length,punivel:0,nao_punivel:0,prescrito:0,nulo:0,tac:0,diligencia:0,pendente:0,analisado:0}; list.forEach(function(p){ var v=p.veredito||'pendente'; c[v]=(c[v]||0)+1; if(p.status!=='pendente') c.analisado++; }); return c; }
 
 function card(p,i,rel){
   var v=ver(p), pend=p.status==='pendente';
@@ -55,9 +56,9 @@ function board(host,list,rel,opts){
   var c=counts(list);
   host.innerHTML=
    '<div class="stats stagger">'+
-    [['Processos',c.total,'#5b4bff'],['Puníveis',c.punivel,'#f2455c'],['Não puníveis',c.nao_punivel,'#1fb768'],['Prescritos',c.prescrito,'#ffae1a'],['Nulidade / TAC',c.nulo+c.tac,'#2f8cff'],['Aguardando autos',c.pendente,'#8b91ad']].map(function(s,i){ return '<div class="stat" style="--c:'+s[2]+';--i:'+i+'"><b>'+s[1]+'</b><span>'+s[0]+'</span></div>'; }).join('')+'</div>'+
+    [['Processos',c.total,'#5b4bff'],['Puníveis',c.punivel,'#f2455c'],['Não puníveis',c.nao_punivel,'#1fb768'],['Prescritos',c.prescrito,'#ffae1a'],['Nulidade / TAC',c.nulo+c.tac,'#2f8cff'],['Em diligência',c.diligencia,'#ff8a1a'],['Aguardando autos',c.pendente,'#8b91ad']].map(function(s,i){ return '<div class="stat" style="--c:'+s[2]+';--i:'+i+'"><b>'+s[1]+'</b><span>'+s[0]+'</span></div>'; }).join('')+'</div>'+
    '<div class="toolbar"><input class="input" id="bq" placeholder="Buscar por número, parte, infração…"><div class="seg" id="bf">'+
-     [['todos','Todos'],['punivel','Puníveis'],['nao_punivel','Não puníveis'],['prescrito','Prescritos'],['pendente','Pendentes']].map(function(f){ return '<button data-f="'+f[0]+'"'+(f[0]==='todos'?' class="on"':'')+'>'+f[1]+'</button>'; }).join('')+'</div>'+(opts.toolbarExtra||'')+'</div>'+
+     [['todos','Todos'],['punivel','Puníveis'],['nao_punivel','Não puníveis'],['prescrito','Prescritos'],['diligencia','Diligência'],['pendente','Pendentes']].map(function(f){ return '<button data-f="'+f[0]+'"'+(f[0]==='todos'?' class="on"':'')+'>'+f[1]+'</button>'; }).join('')+'</div>'+(opts.toolbarExtra||'')+'</div>'+
    '<div class="board stagger" id="bg"></div>';
   function paint(){
     var t=T.normTxt(q);
@@ -178,6 +179,7 @@ function home(root){
        ['Puníveis',tot.punivel+cm.punivel,'#f2455c'],
        ['Não puníveis',tot.nao_punivel+cm.nao_punivel,'#2f8cff'],
        ['Prescritos',tot.prescrito+cm.prescrito,'#ffae1a'],
+       ['Em diligência',tot.diligencia+cm.diligencia,'#ff8a1a'],
        ['Aguardando autos',pend,'#8b91ad']
      ].map(function(s,i){ return '<div class="stat" style="--c:'+s[2]+';--i:'+i+'"><b>'+s[1]+'</b><span>'+s[0]+'</span></div>'; }).join('')+'</div>'; })()+
    '<div class="relgrid stagger">'+rels.map(function(r,i){ var l=byRel[r.id]||[], c=counts(l);
