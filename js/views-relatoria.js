@@ -381,16 +381,7 @@ function renderRelatoria(root, processId){
 
   root.innerHTML=
     '<div class="crumbs"><button class="back" id="bk">'+icon('back')+' Meus processos</button></div>'+
-    '<section class="hero" style="background:linear-gradient(120deg,'+B1+' 0%,'+B2+' 60%,#c0392b 100%)">'+
-      '<h2>'+icon('gavel')+' P.D. '+esc(p.pd||processId)+' — Relatoria</h2>'+
-      '<p>'+esc(p.lead||p.infracao||'Processo de relatoria')+'</p>'+
-      '<div class="tips">'+
-        '<span class="tip">I · Autos e análise</span>'+
-        '<span class="tip">II · Questões para o Relator</span>'+
-        '<span class="tip">III · Deliberação</span>'+
-        '<span class="tip">IV · Voto</span>'+
-      '</div>'+
-    '</section>'+
+    '<h2 class="pagetitle">'+icon('gavel')+' P.D. '+esc(p.pd||processId)+' — Relatoria</h2>'+(p.lead||p.infracao?'<p class="pagesub">'+esc(p.lead||p.infracao)+'</p>':'')+
     blockAutos(p)+
     blockPendencias(p, delib)+
     blockDeliberacao(p, delib)+

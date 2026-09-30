@@ -49,7 +49,7 @@ function dash(V){
 }
 
 T.registerTab({ id:'entendimentos', label:'Meus entendimentos', icon:'brain', render:function(root){
-  root.innerHTML='<section class="hero pink"><h2>Meus entendimentos</h2><p>Pesquise como você já decidiu casos parecidos — nos seus votos e acórdãos (pasta TED do Drive), no ementário do Conselho Federal e nas súmulas. Digite qualquer palavra, artigo ou número de processo.</p><div class="tips"><span class="tip">Busca com tolerância a acentos</span><span class="tip">Resultados ordenados por relevância</span><span class="tip">Painel de tendências</span></div></section>'+
+  root.innerHTML=
    '<div class="toolbar"><input class="input" id="eq" style="max-width:560px" placeholder="Pesquisar (ex.: prescrição notificação válida, art. 34 XXI, 1830/2025)…" value="'+esc(st.q)+'"><div class="seg" id="es">'+[['votos','Meus votos'],['ementas','Ementário CFOAB'],['sumulas','Súmulas']].map(function(s){ return '<button data-s="'+s[0]+'"'+(st.src===s[0]?' class="on"':'')+'>'+s[1]+'</button>'; }).join('')+'</div></div>'+
    '<div class="qk" id="sg">'+SUG.map(function(s){ return '<button data-s="'+esc(s)+'">'+esc(s)+'</button>'; }).join('')+'</div><div id="ed"></div><div id="eo"></div>';
   var eo=T.$('#eo',root), ed=T.$('#ed',root);

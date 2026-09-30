@@ -42,7 +42,7 @@ function form(p){
 T.registerTab({ id:'meus', label:'Meus processos', icon:'folder', render:function(root){
   var list=T.state.meus.slice().sort(function(a,b){ return String(a.sessao||'z').localeCompare(String(b.sessao||'z')) || String(a.pd).localeCompare(String(b.pd),undefined,{numeric:true}); });
   var canEdit=T.perfil&&T.perfil.admin;
-  root.innerHTML='<section class="hero teal"><h2>Meus processos</h2><p>Os processos em que você é <b>relator</b> e que serão julgados na próxima sessão. Cada bloco tem os principais dados, a conclusão (punível ou não, com a sanção) e a papeleta no mesmo padrão dos processos dos demais julgadores.</p><div class="tips"><span class="tip">Papeleta pronta para imprimir</span><span class="tip">Voto sugerido e análise de prescrição</span><span class="tip">Edição direta no bloco</span></div></section>'+
+  root.innerHTML=
    (canEdit?'<div class="toolbar"><button class="btn" id="nv">'+icon('plus')+' Novo processo</button></div>':'')+'<div id="bd"></div>';
   if(canEdit) T.$('#nv',root).addEventListener('click',function(){ form(); });
   if(!list.length){ T.$('#bd',root).innerHTML='<div class="empty"><h3>Nenhum processo cadastrado ainda</h3><p>'+esc(EMPTY_MSG)+'</p></div>'; return; }

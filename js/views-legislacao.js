@@ -32,7 +32,6 @@ function render(root,args){
   var ds=docs(), ementas=window.TED_EMENTAS||[];
   var nac=ds.filter(function(d){ return d.esfera==='nacional'; }), mg=ds.filter(function(d){ return d.esfera==='MG'; });
   root.innerHTML=
-   '<section class="hero blue"><h2>Legislação do TED</h2><p>Estatuto, Código de Ética, Regulamento Geral, provimentos e súmulas do Conselho Federal, mais o Regimento Interno do TED e as normas da OAB/MG — tudo em um lugar, com pesquisa por qualquer palavra, artigo ou número.</p><div class="tips"><span class="tip">Pesquisa em todas as normas</span><span class="tip">Atalhos para os artigos que mais caem em julgamento</span><span class="tip">Ementário do CFOAB (2026)</span></div></section>'+
    '<div class="toolbar"><input class="input" id="lq" style="max-width:520px" placeholder="Pesquisar em toda a legislação (ex.: razões finais, art. 43, retenção de autos)…" value="'+esc(st.q)+'"><button class="btn ghost sm" id="lc">Limpar</button></div>'+
    '<div class="qk">'+QUICK.map(function(q,i){ return '<button data-q="'+i+'">'+esc(q[0])+'</button>'; }).join('')+'</div>'+
    '<div class="leg"><aside class="side" id="sd"><h5>Nacional</h5>'+nac.map(dlBtn).join('')+'<h5>Minas Gerais</h5>'+mg.map(dlBtn).join('')+'<h5>Jurisprudência federal</h5><button class="dl" data-d="ementario"><span class="dot" style="background:'+COLORS.ementario+'"></span>Ementário CFOAB<span class="ct">'+ementas.length+'</span></button></aside><section id="lv"></section></div>';

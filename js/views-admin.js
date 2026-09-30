@@ -99,7 +99,7 @@ function rulesPanel(host){
 }
 
 T.registerTab({ id:'acesso', label:'Acesso', icon:'key', admin:true, render:function(root){
-  root.innerHTML='<section class="hero teal" style="background:linear-gradient(120deg,#1a2a6c,#3a5bd9 55%,#10b8a4)"><h2>Acesso e dados</h2><p>Libere colegas, importe os dados sigilosos e publique as regras de segurança. Esta aba só aparece para administradores.</p></section><div class="cols"><div id="a1"></div><div id="a2"></div></div><div id="a3" style="margin-top:18px"></div>';
+  root.innerHTML='<div class="cols"><div id="a1"></div><div id="a2"></div></div><div id="a3" style="margin-top:18px"></div>';
   usersPanel(T.$('#a1',root)); importPanel(T.$('#a2',root)); rulesPanel(T.$('#a3',root));
 }});
 })();

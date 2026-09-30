@@ -228,7 +228,7 @@ function viewRef(host){
 /* ---------- casca ---------- */
 T.registerTab({ id:'calculadora', label:'Calculadora', icon:'calc', render:function(root){
   if(T.calcPreset){ applyPreset(T.calcPreset); T.calcPreset=null; S.tab='presc'; }
-  root.innerHTML='<section class="hero amber"><h2>Calculadora de prescrição e prazos</h2><p>Prescrição da pretensão punitiva e intercorrente (EAOAB, art. 43), já configurada com as suspensões da pandemia da OAB/MG e a posição do Conselho Federal sobre a Lei 14.010/2020. Compara três cenários e diz o que suspendeu o prazo.</p></section>'+
+  root.innerHTML=
    '<div class="subtabs seg" id="st">'+[['presc','Prescrição (art. 43)'],['prazos','Prazos em dias úteis'],['civil','Prescrição/decadência civil'],['ref','Tabela de referência']].map(function(t){ return '<button data-t="'+t[0]+'"'+(S.tab===t[0]?' class="on"':'')+'>'+t[1]+'</button>'; }).join('')+'</div><div id="cv"></div>';
   function paint(){ T.$$('#st button',root).forEach(function(b){ b.classList.toggle('on',b.getAttribute('data-t')===S.tab); }); var h=T.$('#cv',root); ({presc:viewPresc,prazos:viewPrazos,civil:viewCivil,ref:viewRef})[S.tab](h); }
   T.$$('#st button',root).forEach(function(b){ b.addEventListener('click',function(){ S.tab=b.getAttribute('data-t'); paint(); }); });

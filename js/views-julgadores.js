@@ -166,8 +166,6 @@ function home(root){
   var byRel={}; S.processos.forEach(function(p){ (byRel[p.relatorId]=byRel[p.relatorId]||[]).push(p); });
   var tot=counts(S.processos);
   root.innerHTML=
-   '<section class="hero"><h2>Julgadores</h2><p>Escolha o relator para ver os processos em que você atuará como vogal: número, partes, infração em até quatro palavras, artigo invocado, se o caso é punível e a sanção que se entende necessária — com a papeleta pronta para imprimir e a análise completa (prescrição, citação, razões finais e teses).</p>'+
-   '<div class="tips"><span class="tip">1 · Clique no bloco do relator</span><span class="tip">2 · Veja os blocos dos processos</span><span class="tip">3 · Abra a papeleta ou a análise</span></div></section>'+
    (S.permFail?'<div class="callout bad"><b>Sem permissão de leitura.</b> As regras do Firestore do TED ainda não foram publicadas (ou seu e-mail não está liberado). Veja a aba <b>Acesso</b> (administrador) ou o README-SETUP.md.</div>':'')+
    (!S.processos.length&&!S.permFail?'<div class="callout warn"><b>Nenhum processo carregado ainda.</b> '+(T.perfil.admin?'Vá em <b>Acesso → Importar dados</b> e envie o arquivo <span class="kbd">TED-importacao.json</span>.':'Peça ao administrador para importar os dados.')+'</div>':'')+
    (function(){ var meus=S.meus||[], cm=counts(meus), geral=tot.total+meus.length, pend=tot.pendente+cm.pendente;
@@ -192,7 +190,7 @@ function relatorView(root,id){
   var list=T.state.processos.filter(function(p){ return p.relatorId===id; }).sort(function(a,b){ return String(a.pd).localeCompare(String(b.pd),undefined,{numeric:true}); });
   root.innerHTML=
    '<div class="crumbs"><button class="back" id="bk">'+icon('back')+' Todos os julgadores</button>'+(list[0]&&list[0].relatorDrive?'<a class="back" target="_blank" rel="noopener" href="'+driveUrl(list[0].relatorDrive)+'">'+icon('ext')+' Pasta no Drive</a>':'')+'</div>'+
-   '<section class="hero" style="background:linear-gradient(120deg,hsl('+rel.h+' 78% 40%),hsl('+(rel.h+42)+' 82% 58%))"><h2>'+esc(rel.tr+' '+rel.nome)+'</h2><p>'+(rel.oab?esc(rel.oab)+' · ':'')+'Relator. Você atua como <b>vogal</b> nos processos abaixo. Cada bloco traz o essencial; abra a <b>papeleta</b> para levar à sessão ou a <b>análise completa</b> para o detalhamento.</p></section><div id="bd"></div>';
+   '<h2 class="pagetitle">'+esc(rel.tr+' '+rel.nome)+'</h2>'+(rel.oab?'<p class="pagesub">'+esc(rel.oab)+' · relator</p>':'<p class="pagesub">Relator</p>')+'<div id="bd"></div>';
   T.$('#bk',root).addEventListener('click',function(){ location.hash='#/julgadores'; });
   if(!list.length){ T.$('#bd',root).innerHTML='<div class="empty"><h3>Nenhum processo cadastrado para este relator</h3><p>Importe os dados em Acesso → Importar dados.</p></div>'; return; }
   board(T.$('#bd',root),list,rel);
