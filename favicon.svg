@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="OAB">
+  <defs>
+    <radialGradient id="g" cx="33%" cy="26%" r="84%">
+      <stop offset="0" stop-color="#6cbcec"/>
+      <stop offset="40%" stop-color="#2069b0"/>
+      <stop offset="100%" stop-color="#051f42"/>
+    </radialGradient>
+    <linearGradient id="r" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fff" stop-opacity=".55"/>
+      <stop offset="1" stop-color="#fff" stop-opacity=".04"/>
+    </linearGradient>
+    <path id="s" d="M0,-1L.225,-.309L.951,-.309L.363,.118L.588,.809L0,.382L-.588,.809L-.363,.118L-.951,-.309L-.225,-.309Z"/>
+  </defs>
+  <circle cx="32" cy="32" r="31" fill="url(#g)"/>
+  <ellipse cx="21" cy="17" rx="15" ry="9" fill="#fff" opacity=".16" transform="rotate(-28 21 17)"/>
+  <g fill="#fff" opacity=".96">
+    <use href="#s" transform="translate(16.5,35.8) scale(2.1)"/>
+    <use href="#s" transform="translate(25.2,42.6) scale(1.8)"/>
+    <use href="#s" transform="translate(30.8,47.0) scale(2.2)"/>
+    <use href="#s" transform="translate(38.3,41.4) scale(1.7)"/>
+    <use href="#s" transform="translate(43.9,48.9) scale(1.8)"/>
+    <use href="#s" transform="translate(17.6,29.5) scale(1.7)"/>
+    <use href="#s" transform="translate(21.5,45.5) scale(1.5)"/>
+    <use href="#s" transform="translate(47.6,40.3) scale(1.4)"/>
+  </g>
+  <circle cx="32" cy="32" r="31" fill="none" stroke="url(#r)" stroke-width="1.4"/>
+</svg>
